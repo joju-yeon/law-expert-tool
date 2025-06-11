@@ -1,5 +1,5 @@
 import * as React from 'react';
-import './globals.css';
+import '../styles/globals.css';
 
 export const metadata = {
   title: '대한민국 법령 전문가 Q&A',
