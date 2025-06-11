@@ -10,7 +10,7 @@ export default function Home() {
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleAsk = async (q: string) => {
+  const handleAsk = async (q) => {
     setLoading(true);
     setAnswer('');
     setQuestion(q);

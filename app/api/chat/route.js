@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export const maxDuration = 30;
 
-export async function POST(req: NextRequest) {
+export async function POST(req) {
   const { question } = await req.json();
 
   const systemPrompt = `당신은 대한민국 법령 전문가입니다.
@@ -24,26 +24,37 @@ export async function POST(req: NextRequest) {
    - 별표 안내: "※ 최신 별표는 시행규칙에서 직접 확인"
 `;
 
-  const response = await fetch('https://api.perplexity.ai/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'sonar-pro',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: question },
-      ],
-      max_tokens: 1024,
-      temperature: 0.2,
-    }),
-  });
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: question },
+        ],
+        temperature: 0.2,
+        max_tokens: 1024,
+      }),
+    });
 
-  const data = await response.json();
-  return NextResponse.json({
-    answer: data.choices?.[0]?.message?.content || '답변을 가져올 수 없습니다.',
-  });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ OpenAI API 호출 실패:', errorText);
+      return NextResponse.json({ answer: 'OpenAI 응답 오류입니다. 관리자에게 문의하세요.' }, { status: 500 });
+    }
+
+    const data = await response.json();
+    return NextResponse.json({
+      answer: data.choices?.[0]?.message?.content || '답변을 가져올 수 없습니다.',
+    });
+
+  } catch (error) {
+    console.error('❌ 서버 내부 오류:', error);
+    return NextResponse.json({ answer: '서버 오류가 발생했습니다.' }, { status: 500 });
+  }
 }
