@@ -1,24 +1,18 @@
 {
   "name": "law-expert-tool",
   "version": "1.0.0",
-  "description": "GPT 기반 법률 전문가 도구",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "vercel-build": "npm ci && next build",
+    "vercel-build": "npm install && next build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "GPT",
-    "Next.js",
-    "법률",
-    "AI",
-    "OpenAI"
-  ],
-  "author": "joju-yeon",
-  "license": "MIT",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "next": "^15.3.3",
     "react": "^19.1.0",
@@ -26,8 +20,8 @@
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
-    "@types/react": "^19.1.8",
-    "typescript": "^5.8.3"
+    "typescript": "^5.4.5",
+    "@types/react": "^18.2.43",
+    "@types/node": "^20.11.30"
   }
 }
