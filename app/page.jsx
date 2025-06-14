@@ -15,14 +15,22 @@ export default function Home() {
     setLoading(true);
     setAnswer('');
     setQuestion(q);
-    const res = await fetch('/api/chat/route', {
+
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: q, language }),
     });
-    const data = await res.json();
-    setAnswer(data.answer);
-    setLoading(false);
+
+    try {
+      const data = await res.json();
+      setAnswer(data.answer);
+    } catch (e) {
+      setAnswer('❌ 응답 처리 중 오류가 발생했습니다.');
+      console.error('응답 JSON 오류:', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDownloadPDF = () => {

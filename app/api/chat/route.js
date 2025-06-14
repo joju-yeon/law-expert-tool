@@ -1,12 +1,10 @@
-// ✅ route.js 확장 버전: 번역 + 유사 질문 + PDF 포함
 import { NextResponse } from 'next/server';
 import { parseStringPromise } from 'xml2js';
-import { jsPDF } from 'jspdf';
 
 export const maxDuration = 30;
 
 export async function POST(req) {
-  const { question } = await req.json();
+  const { question, language = 'ko' } = await req.json();  // ✅ language 받기
 
   const lawApiKey = process.env.PUBLIC_LAW_API_KEY;
   let lawInfoText = '※ 공공 API에서 관련 법령을 찾을 수 없습니다.';
@@ -48,6 +46,14 @@ export async function POST(req) {
     console.error('📛 공공 API 오류:', err);
   }
 
+  // ✅ 언어별 format 조건
+  const languageNote =
+    language === 'ko'
+      ? `5) 영어 번역\n6) 중국어 번역\n7) 유사 질의 추천 (최소 2개)`
+      : language === 'en'
+      ? `💬 Please provide the entire answer in fluent English only.`
+      : `💬 请仅用中文完整回答上述问题。`;
+
   const systemPrompt = `
 당신은 대한민국 산업안전보건 및 환경 관련 법령 해석 전문가입니다.
 다음 질문에 대해 아래 법령 정보와 조문을 참고하여 전문가 수준의 실무 중심 설명을 제공하세요.
@@ -63,13 +69,11 @@ ${fullLawText}
 2) 요약 (2문장)  
 3) 상세 설명 (조문 일부 포함 가능)  
 4) 출처 (law.go.kr 링크 포함)
-5) 영어 번역
-6) 중국어 번역
-7) 유사 질의 추천 (최소 2개)
+${languageNote}
 
 ※ 정확한 조문이 없는 경우, 질문을 해석하여 유사한 조항을 근거로 설명하세요. 반드시 실무 적용 가능한 방식으로 설명하며, 고시·별표도 활용 가능합니다.
 ※ 모호한 표현, 책임 회피 금지.
-  `;
+`;
 
   try {
     const gptResponse = await fetch('https://api.openai.com/v1/chat/completions', {
